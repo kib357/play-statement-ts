@@ -17,3 +17,16 @@ export type Invoice = {
   customer: string;
   performances: Performance[];
 };
+
+export type StatementPerformance = Performance & {
+  play: Play;
+  amount: number;
+  volumeCredits: number;
+};
+
+export type StatementData = {
+  customer: string;
+  performances: StatementPerformance[];
+  totalAmount: number;
+  totalVolumeCredits: number;
+};
