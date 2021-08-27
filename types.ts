@@ -18,6 +18,8 @@ export type Invoice = {
   performances: Performance[];
 };
 
+export type PerformanceWithPlay = Performance & { play: Play };
+
 export type StatementPerformance = Performance & {
   play: Play;
   amount: number;
@@ -30,3 +32,13 @@ export type StatementData = {
   totalAmount: number;
   totalVolumeCredits: number;
 };
+
+export interface PerformanceCalculator {
+  amount: () => number;
+  volumeCredits: () => number;
+}
+
+export type PerformanceCalculatorFabric = (
+  type: PlayType,
+  performance: PerformanceWithPlay
+) => PerformanceCalculator;

@@ -1,6 +1,8 @@
 import {
   Invoice,
   Performance,
+  PerformanceCalculatorFabric,
+  PerformanceWithPlay,
   Play,
   StatementData,
   StatementPerformance,
@@ -8,20 +10,11 @@ import {
 
 export function makeStatementData(
   invoice: Invoice,
-  plays: Record<string, Play>
+  plays: Record<string, Play>,
+  makePerformanceCalculator: PerformanceCalculatorFabric
 ) {
-  const performances: StatementPerformance[] = invoice.performances.map(
-    (performance) => {
-      const performanceWithPlay = {
-        ...performance,
-        play: plays[performance.playID],
-      };
-      return {
-        ...performanceWithPlay,
-        amount: amountFor(performanceWithPlay),
-        volumeCredits: volumeCreditsFor(performanceWithPlay),
-      };
-    }
+  const performances = invoice.performances.map(
+    makeEnrichPerformance(plays, makePerformanceCalculator)
   );
 
   const data: StatementData = {
@@ -35,31 +28,22 @@ export function makeStatementData(
   };
   return data;
 }
-function volumeCreditsFor(perf: Performance & { play: Play }): number {
-  let result = Math.max(perf.audience - 30, 0);
-  if ("comedy" === perf.play.type) {
-    result += Math.floor(perf.audience / 5);
-  }
-  return result;
-}
-function amountFor(perf: Performance & { play: Play }): number {
-  let result = 0;
-  switch (perf.play.type) {
-    case "tragedy":
-      result = 40000;
-      if (perf.audience > 30) {
-        result += 1000 * (perf.audience - 30);
-      }
-      break;
-    case "comedy":
-      result = 30000;
-      if (perf.audience > 20) {
-        result += 10000 + 500 * (perf.audience - 20);
-      }
-      result += 300 * perf.audience;
-      break;
-    default:
-      throw new Error(`unknown type: ${perf.play.type}`);
-  }
-  return result;
-}
+
+const makeEnrichPerformance =
+  (
+    plays: Record<string, Play>,
+    makePerformanceCalculator: PerformanceCalculatorFabric
+  ) =>
+  (performance: Performance): StatementPerformance => {
+    const performanceWithPlay: PerformanceWithPlay = {
+      ...performance,
+      play: plays[performance.playID],
+    };
+    const playType = performanceWithPlay.play.type;
+    const calculator = makePerformanceCalculator(playType, performanceWithPlay);
+    return {
+      ...performanceWithPlay,
+      amount: calculator.amount(),
+      volumeCredits: calculator.volumeCredits(),
+    };
+  };
