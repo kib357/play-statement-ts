@@ -38,24 +38,4 @@ describe("report statement should", () => {
 
     expect(renderer.toJSON()).toMatchSnapshot();
   });
-  // it("be correct", () => {
-  //   const plays: Record<string, Play> = {
-  //     hamlet: { name: "Hamlet", type: PlayType.tragedy },
-  //     "as-like": { name: "As You Like It", type: PlayType.comedy },
-  //     othello: { name: "Othello", type: PlayType.tragedy },
-  //     merchant: { name: "The Merchant of Venice", type: PlayType.comedy },
-  //   };
-
-  //   const report = statement(invoice, plays);
-
-  //   expect(report).toBe(
-  //     "Statement for BigCo\n" +
-  //       "  Hamlet: $650.00 (55 seats)\n" +
-  //       "  As You Like It: $580.00 (35 seats)\n" +
-  //       "  Othello: $400.00 (29 seats)\n" +
-  //       "  The Merchant of Venice: $357.00 (19 seats)\n" +
-  //       "Amount owed is $1,987.00\n" +
-  //       "You earned 40 credits\n"
-  //   );
-  // });
 });
