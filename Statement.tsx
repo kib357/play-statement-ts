@@ -1,15 +1,19 @@
+import React from "react";
 import { Invoice, Play } from "./types";
 
-function statement(invoice: Invoice, plays: Record<string, Play>) {
+type Props = { invoice: Invoice; plays: Record<string, Play> };
+
+const Statement: React.FC<Props> = ({ invoice, plays }) => {
   let totalAmount = 0;
   let volumeCredits = 0;
-  let result = `Statement for ${invoice.customer}\n`;
+
   const format = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
   }).format;
-  for (let perf of invoice.performances) {
+
+  const rows = invoice.performances.map((perf, i) => {
     const play = plays[perf.playID];
     let thisAmount = 0;
 
@@ -36,15 +40,23 @@ function statement(invoice: Invoice, plays: Record<string, Play>) {
     // add extra credit for every ten comedy attendees
     if ("comedy" === play.type) volumeCredits += Math.floor(perf.audience / 5);
 
-    // print line for this order
-    result += `  ${play.name}: ${format(thisAmount / 100)} (${
-      perf.audience
-    } seats)\n`;
     totalAmount += thisAmount;
-  }
-  result += `Amount owed is ${format(totalAmount / 100)}\n`;
-  result += `You earned ${volumeCredits} credits\n`;
-  return result;
-}
 
-export default statement;
+    return (
+      <li key={i}>
+        {play.name}: {format(thisAmount / 100)} ({perf.audience} seats)
+      </li>
+    );
+  });
+
+  return (
+    <div>
+      <h1>Statement for {invoice.customer}</h1>
+      <ol>{rows}</ol>
+      <p>Amount owed is {format(totalAmount / 100)}</p>
+      <p>You earned {volumeCredits} credits</p>
+    </div>
+  );
+};
+
+export default Statement;
